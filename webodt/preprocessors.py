@@ -43,21 +43,21 @@ def xmlfor_preprocessor(template_content):
     tree = etree.parse(StringIO(template_content))
 
     # 1. search for xmlfor pairs
-    re_xmlfor = re.compile(r'{%\s*xmlfor([^%]*)%}')
-    re_endxmlfor = re.compile(r'{%\s*endxmlfor[^%]*%}')
+    re_xmlfor = re.compile(r'{%\s*xml(tr||li)for([^%]*)%}')
+    re_endxmlfor = re.compile(r'{%\s*endxml(tr||li)for[^%]*%}')
     xmlfor_pairs = []
     xmlfor_starts = []
     for el in tree.iter():
         # search for start tag in text
         re_xmlfor_match = re_xmlfor.search(el.text) if el.text else None
         if re_xmlfor_match:
-            forloop_clause = re_xmlfor_match.group(1)
+            forloop_clause = re_xmlfor_match.group(2), re_xmlfor_match.group(1),
             xmlfor_starts.append((el, forloop_clause)) # (<div ...>, 'person in people')
             el.text = re_xmlfor.sub('', el.text)
         # search for start tag in tail
         re_xmlfor_match = re_xmlfor.search(el.tail) if el.tail else None
         if re_xmlfor_match:
-            forloop_clause = re_xmlfor_match.group(1)
+            forloop_clause = re_xmlfor_match.group(2), re_xmlfor_match.group(1),
             xmlfor_starts.append((el.getparent(), forloop_clause))
             el.tail = re_xmlfor.sub('', el.tail)
         # search for end tag in text
@@ -85,9 +85,11 @@ def xmlfor_preprocessor(template_content):
     # 2. for each pair create {% for %} loop around common ancestor
     for start_tag, end_tag, forloop_clause in xmlfor_pairs:
         ancestor_tag = _find_common_ancestor(start_tag, end_tag)
+        if forloop_clause[1] == 'li':
+            ancestor_tag = _find_common_ancestor(ancestor_tag, end_tag)
 
         # before
-        for_text = u'{%% for%s%%}' % forloop_clause
+        for_text = u'{%% for%s%%}' % forloop_clause[0]
         prev_tag = ancestor_tag.getprevious()
         if prev_tag is not None:
             prev_tail = prev_tag.tail or ''

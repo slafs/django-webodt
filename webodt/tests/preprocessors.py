@@ -68,6 +68,38 @@ class XMLForTest(unittest.TestCase):
         output_template = xmlfor_preprocessor(input_template)
         self.assertEqual(output_template, expected_output_template)
 
+    def test_xmltrfor_preprocessor(self):
+        input_template = '''<table>
+            <tr>
+                <td>{% xmltrfor user in users %}{{ user.username }}</td>
+                <td>{{ user.balance }}{% endxmltrfor %}</td>
+            </tr>
+        </table>'''
+        expected_output_template = '''<table>
+            {% for user in users %}<tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.balance }}</td>
+            </tr>{% endfor %}
+        </table>'''
+        output_template = xmlfor_preprocessor(input_template)
+        self.assertEqual(output_template, expected_output_template)
+
+    def test_xmlflior_preprocessor(self):
+        input_template = '''<ul>
+            <li>
+                <div><p>{% xmllifor user in users %}{{ user.username }}
+                {{ user.balance }}{% endxmllifor %}</p></div>
+            </li>
+        </ul>'''
+        expected_output_template = '''<ul>
+            {% for user in users %}<li>
+                <div><p>{{ user.username }}
+                {{ user.balance }}</p></div>
+            </li>{% endfor %}
+        </ul>'''
+        output_template = xmlfor_preprocessor(input_template)
+        self.assertEqual(output_template, expected_output_template)
+
     def test_find_common_ancestor(self):
         template = '''
         <table>

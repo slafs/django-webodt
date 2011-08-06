@@ -1,5 +1,5 @@
-Working with tables
-=====================
+Working with tables and lists
+=============================
 
 Suppose you want to build a document which iterates over a variable to create a
 table with a number of rows. For example, you want to create the table containg
@@ -60,3 +60,10 @@ exactly where you would expect them to find.
 The output will look like presented below.
 
 .. image:: _static/xmlfor_output.png
+
+Also if you want to work with lists in your template, you can try using `{% xmllifor ... %}` instead of the above form.
+This pseudotag is even more magical and it places the `{% for ... %}` one tag "higher" than the original `{% xmlfor ... %}`
+because of how odt lists are formed in a document. 
+
+.. note:: 
+    Nested tags (i.e. `{% xmlfor ... %}` and `{% xmllifor %}`) may not work but it seems in most cases result will be as expected.
